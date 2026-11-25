@@ -1,0 +1,12 @@
+services:
+  platform:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      DATABASE_URL: sqlite:///./data/platform.db
+      DEMO_MODE: "true"
+      DEMO_BASE_URL: http://127.0.0.1:8000
+    restart: unless-stopped
