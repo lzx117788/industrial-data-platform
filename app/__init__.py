@@ -1,0 +1,1 @@
+"""Industrial operations data platform."""
