@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>工业运维数据中台 · OpsData</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">O</span><span>OpsData<small>工业运维数据中台</small></span></a>
+    <span class="nav-label">WORKSPACE</span>
+    <nav aria-label="主导航">
+      <button class="nav active" data-section="overview"><span>◈</span>运行总览</button>
+      <button class="nav" data-section="devices"><span>▦</span>设备数据</button>
+      <button class="nav" data-section="quality"><span>◉</span>数据质量</button>
+      <button class="nav" data-section="runs"><span>↻</span>同步记录</button>
+    </nav>
+    <div class="sidebar-bottom"><i></i><span id="connection">正在连接服务</span><small>CSV / HTTP / SQL<br>统一接入 · 统一设备 · 统一服务</small></div>
+  </aside>
+  <main>
+    <header><div class="breadcrumb">工作空间 <span>/</span> 工业运维</div><a href="/docs" target="_blank" rel="noopener">API 文档 ↗</a></header>
+    <div class="content">
+      <section class="page-heading"><div><div class="eyebrow">OPERATIONS DATA PLATFORM</div><h1 id="page-title">让设备数据，关联起来。</h1><p id="page-subtitle">汇集设备档案、告警与维修记录，为运维应用提供一致的数据视图。</p></div><div class="actions"><button class="button secondary" id="refresh">刷新</button><button class="button primary" id="sync-all">同步示例数据 <span>↗</span></button></div></section>
+      <div id="error-banner" class="error-banner" role="alert" hidden></div>
+      <section id="overview" class="view">
+        <div class="stats">
+          <article class="stat"><div>统一设备 <span>ASSETS</span></div><strong id="count-devices">—</strong><small>通过统一设备 ID 关联数据</small></article>
+          <article class="stat"><div>已接入告警 <span>ALARMS</span></div><strong id="count-alarms">—</strong><small>包含等级、事件时间与来源</small></article>
+          <article class="stat"><div>维修记录 <span>MAINTENANCE</span></div><strong id="count-maintenance">—</strong><small>保留维修内容、人员与费用</small></article>
+          <article class="stat"><div>质量问题 <span>QUALITY</span></div><strong id="count-quality">—</strong><small>异常留存，支持追溯与修复</small></article>
+        </div>
+        <div class="panel flow"><div class="panel-title"><div><h2>数据如何流转</h2><p>源数据经过标准化与校验，再交付给业务应用。</p></div><span class="pill">可追溯链路</span></div><div class="flow-steps"><div><b>01</b><strong>多源数据接入</strong><small>CSV · HTTP · SQL</small></div><span>→</span><div><b>02</b><strong>清洗与设备关联</strong><small>校验 · 去重 · 编号映射</small></div><span>→</span><div><b>03</b><strong>统一数据视图</strong><small>设备档案 · 事件时间线</small></div><span>→</span><div><b>04</b><strong>服务业务应用</strong><small>Agent 工具 · 运维看板</small></div></div></div>
+        <div class="panel"><div class="panel-title"><div><h2>数据源接入</h2><p>先同步设备档案，再同步告警与维修记录；支持增量同步和全量校验。</p></div><span id="sources-count" class="panel-meta"></span></div><div class="table-wrap"><table><thead><tr><th>数据源</th><th>接入方式</th><th>同步水位</th><th>最近运行</th><th class="right">操作</th></tr></thead><tbody id="source-rows"></tbody></table></div></div>
+        <div class="two-column"><div class="panel"><div class="panel-title"><div><h2>输入数据质量</h2><p>最近 100 次运行中已处理记录的统计。</p></div></div><div id="quality-bars" class="quality-bars"></div><p class="panel-note">示例故意包含错误数据；质量问题计数包含全量重放产生的重复检查记录。</p></div><div class="panel"><div class="panel-title"><div><h2>数据新鲜度</h2><p>各数据源最新一条已接收记录的更新时间。</p></div></div><div id="freshness" class="freshness"></div><p class="panel-note">这是最新记录年龄，不能代表全部历史积压已被处理。</p></div></div>
+      </section>
+      <section id="devices" class="view" hidden><div class="panel"><div class="panel-title"><div><h2>设备目录</h2><p>点击设备，查看跨来源编号和关联事件。</p></div><input type="search" id="search" placeholder="搜索设备编号或名称" aria-label="搜索设备"></div><div class="table-wrap"><table><thead><tr><th>设备编号</th><th>设备名称</th><th>类型</th><th>所在位置</th><th>状态</th><th>源数据更新时间</th></tr></thead><tbody id="device-rows"></tbody></table></div></div><div id="device-detail" class="panel" hidden></div></section>
+      <section id="quality" class="view" hidden><div class="panel"><div class="panel-title"><div><h2>质量问题记录</h2><p>保留原始记录与错误原因。修复来源数据后，可执行全量校验重新处理。</p></div><span class="pill warning">异常隔离</span></div><div class="table-wrap"><table><thead><tr><th>来源</th><th>源记录 ID</th><th>问题类型</th><th>原因</th><th>发现时间</th></tr></thead><tbody id="issue-rows"></tbody></table></div></div></section>
+      <section id="runs" class="view" hidden><div class="panel"><div class="panel-title"><div><h2>同步任务记录</h2><p>查看每次运行的提交进度、增量结果与失败原因。</p></div><span class="pill">最近 50 次运行</span></div><div class="table-wrap"><table><thead><tr><th>来源 / 时间</th><th>状态</th><th>读取</th><th>新增 / 更新</th><th>未变更</th><th>拒绝 / 重复</th><th>耗时</th></tr></thead><tbody id="run-rows"></tbody></table></div></div><div class="panel"><div class="panel-title"><div><h2>API 响应耗时</h2><p>当前进程内，每条路由最近 1,000 次请求；统计服务端处理时间。</p></div></div><div id="api-metrics" class="metrics-list"></div></div></section>
+      <footer>OpsData <span>数据接入 / 设备关联 / 增量同步 / 质量追溯</span><span id="updated-at"></span></footer>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
